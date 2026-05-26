@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Felixis Falcon | Música para el Alma</title>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dd3tduggc/image/upload/v1778631268/favicon-ins_lw1cbh.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --accent-nude: #f5f1ed;
+            --soft-gray: #e5e5e5;
+            --glow-color: rgba(200, 160, 255, 0.8);
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--soft-gray); color: #1a1a1a; overflow-x: hidden; }
+        h1, h2, h3, .font-serif { font-family: 'Playfair Display', serif; }
+        .font-script { font-family: 'Pinyon Script', cursive; }
+ 
+        .btn-pill-glow {
+            position: relative; border: 1px solid rgba(255,255,255,0.9); border-radius: 9999px;
+            padding: 14px 60px; background: transparent; color: white;
+            transition: all 0.6s cubic-bezier(0.16,1,0.3,1);
+            box-shadow: 0 0 15px rgba(255,255,255,0.2), 0 0 10px var(--glow-color);
+            text-transform: uppercase; letter-spacing: 0.4em; font-size: 10px;
+            font-weight: 500; backdrop-filter: blur(8px); cursor: pointer;
+        }
+        .btn-pill-glow:hover {
+            border-color: white; box-shadow: 0 0 35px rgba(255,255,255,0.5), 0 0 30px var(--glow-color);
+            transform: translateY(-2px) scale(1.02); background: rgba(255,255,255,0.1);
+        }
+        .btn-pill-glow:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+ 
+        .spotify-icon,.youtube-icon,.instagram-icon,.facebook-icon { width:20px;height:20px;object-fit:contain;filter:drop-shadow(0 0 5px var(--glow-color));transition:all 0.4s ease; }
+        .footer-spotify-icon,.footer-youtube-icon,.footer-instagram-icon,.footer-facebook-icon { width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 0 8px var(--glow-color));transition:all 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+ 
+        .lanzamiento-wrapper { background:#07141d; color:white; }
+ 
+        .video-card { position:relative;display:block;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 20px 60px rgba(0,0,0,0.6);transition:transform 0.5s ease; }
+        .video-card:hover { transform:scale(1.01); }
+        .video-card img.video-thumb { width:100%;display:block;filter:brightness(0.8);transition:0.5s; }
+        .video-card:hover img.video-thumb { filter:brightness(0.95); }
+        .youtube-button { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:clamp(60px,8vw,100px);transition:0.3s;filter:drop-shadow(0 0 20px rgba(255,0,0,0.3)); }
+        .video-card:hover .youtube-button { transform:translate(-50%,-50%) scale(1.15);filter:drop-shadow(0 0 30px rgba(255,0,0,0.5)); }
+ 
+        #intro-overlay { position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:100;display:flex;align-items:center;justify-content:center;transition:opacity 1s ease-in-out,visibility 1s; }
+        .fade-out { opacity:0;visibility:hidden; }
+ 
+        .reveal { opacity:0;transform:translateY(30px);transition:all 0.8s cubic-bezier(0.22,1,0.36,1); }
+        .reveal.active { opacity:1;transform:translateY(0); }
+ 
+        #navbar { backdrop-filter:blur(0px);background-color:transparent;border-bottom:1px solid transparent; }
+        #navbar.scrolled { backdrop-filter:blur(12px);background-color:rgba(0,0,0,0.8);border-bottom:1px solid rgba(255,255,255,0.05);padding-top:1rem;padding-bottom:1rem; }
+ 
+        .hero-expanded { height:100vh;width:100%;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden; }
+        .hero-bg-img { position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;filter:brightness(0.9);z-index:1;transition:transform 0.8s cubic-bezier(0.22,1,0.36,1); }
+        .hero-overlay { position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.4) 0%,rgba(0,0,0,0.1) 50%,#07141d 100%);z-index:2; }
+ 
+        #mobile-menu { transition:opacity 0.4s ease,visibility 0.4s; }
+        #mobile-menu.active { opacity:1;visibility:visible; }
+        #mobile-menu .menu-content { transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);transform:translateY(-20px); }
+        #mobile-menu.active .menu-content { transform:translateY(0); }
+ 
+        .camp-input { background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:white;transition:all 0.3s ease; }
+        .camp-input:focus { outline:none;border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.1);box-shadow:0 0 15px rgba(255,255,255,0.1); }
+        .camp-input::placeholder { color:rgba(255,255,255,0.3); }
+ 
+        #toast {
+            position:fixed;bottom:2rem;left:50%;
+            transform:translateX(-50%) translateY(100px);
+            padding:12px 28px;border-radius:9999px;
+            font-size:12px;letter-spacing:0.05em;
+            z-index:9999;opacity:0;pointer-events:none;
+            transition:transform 0.4s cubic-bezier(0.16,1,0.3,1),opacity 0.4s;
+            color: white;
+        }
+        #toast.show { transform:translateX(-50%) translateY(0);opacity:1; }
+        #toast.success { background:#22c55e; }
+        #toast.error   { background:#ef4444; }
+ 
+        html,body { max-width:100%;overflow-x:hidden; }
+    </style>
+</head>
+<body>
+ 
+<div id="toast"></div>
+ 
+<div id="intro-overlay">
+    <div class="text-center">
+        <h2 class="text-6xl md:text-8xl lg:text-9xl font-script tracking-wider animate-pulse">Felixis Falcon</h2>
+        <p class="text-[8px] md:text-[10px] tracking-[0.4em] mt-4 text-gray-400 font-light uppercase">Conectando Almas</p>
+    </div>
+</div>
+ 
+<nav id="navbar" class="fixed w-full z-50 transition-all duration-700 px-6 py-6 md:py-8 lg:py-10 text-white">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <div class="text-3xl md:text-4xl lg:text-5xl font-script tracking-wide z-50 relative">Felixis Falcon</div>
+        <div class="hidden lg:flex space-x-8 xl:space-x-10 text-[10px] tracking-[0.3em] uppercase font-light">
+            <a href="#inicio" class="hover:opacity-50 transition">Inicio</a>
+            <a href="#lanzamientos" class="hover:opacity-50 transition">Lanzamientos</a>
+                <a href="#biografia" class="hover:opacity-50 transition">Biografía</a>
+            <a href="#campamento" class="hover:text-orange-400 transition">Campamento</a>
+            <a href="#invitaciones" class="hover:opacity-50 transition">Invitaciones</a>
+            <a href="#contacto" class="hover:opacity-50 transition">Contacto</a>
+        </div>
+        <div class="flex items-center gap-4 md:gap-6 z-50 relative">
+            <div class="hidden md:flex items-center gap-4 lg:gap-5 border-l border-white/20 pl-4 lg:pl-6 ml-2">
+                <a href="https://www.instagram.com/felixis_falcon/?hl=en" target="_blank"><img src="https://res.cloudinary.com/dd3tduggc/image/upload/v1778631268/favicon-ins_lw1cbh.png" alt="Instagram" class="instagram-icon"></a>
+                <a href="https://open.spotify.com/search/felixis%20falcon" target="_blank"><img src="https://res.cloudinary.com/dd3tduggc/image/upload/v1778629479/favicon-tbn_xffcor.png" alt="Spotify" class="spotify-icon"></a>
+                <a href="https://www.youtube.com/@felixisfalcon" target="_blank"><img src="https://res.cloudinary.com/dd3tduggc/image/upload/v1778629614/favicon-yt_wudooa.png" alt="YouTube" class="youtube-icon"></a>
+                <a href="https://www.facebook.com/felixis7/" target="_blank"><img src="https://res.cloudinary.com/dd3tduggc/image/upload/v1778631263/favicon-fb_vq9duj.png" alt="Facebook" class="facebook-icon"></a>
+            </div>
+            <button id="mobile-menu-btn" class="lg:hidden p-2 -mr-2 text-white hover:text-gray-300 transition">
+                <i data-lucide="menu" class="w-6 h-6 md:w-8 md:h-8"></i>
+            </button>
+        </div>
+    </div>
+</nav>
+ 
+<div id="mobile-menu" class="fixed inset-0 bg-[#07141d]/95 backdrop-blur-xl z-40 invisible opacity-0 flex flex-col justify-center items-center">
+    <div class="menu-content flex flex-col items-center gap-10 w-full px-6">
+        <a href="#inicio" class="mobile-link text-2xl font-serif italic text-white hover:text-gray-300">Inicio</a>
+        <a href="#lanzamientos" class="mobile-link text-2xl font-serif italic text-white hover:text-gray-300">Lanzamientos</a>
+        <a href="#biografia" class="mobile-link text-2xl font-serif italic text-white hover:text-gray-300">Biografía</a>
+            <a href="#campamento" class="mobile-link text-2xl font-serif italic text-orange-400 hover:text-orange-300">Campamento</a>
+        <a href="#invitaciones" class="mobile-link text-2xl font-serif italic text-white hover:text-gray-300">Invitaciones</a>
+        <a href="#contacto" class="mobile-link text-2xl font-serif italic text-white hover:text-gray-300">Contacto</a>
+        <div class="flex gap-8 mt-8 border-t border-white/10 pt-10 w-full justify-center">
+            <a href="https://www.instagram.com/felixis_falcon/?hl=en" target="_blank"><img src="https://res.cloudinary.com/dd3tduggc/image/upload/v1778631268/favicon-ins_lw1cbh.png" class="w-6 h-6"></a>
+            <a href="https://open.spotify.com/search/felixis%20falcon" target="_blank"><img src="https://res.cloudinary.com/dd3tduggc/image/upload/v1778629479/favicon-tbn_xffcor.png" class="w-6 h-6"></a>
+            <a href="https://www.youtube.com/@felixisfalcon" target="_blank"><img src="https://res.cloudinary.com/dd3tduggc/image/upload/v1778629614/favicon-yt_wudooa.png" class="w-6 h-6"></a>
+            <a href="https://www.facebook.com/felixis7/" target="_blank"><img src="https://res.cloudinary.com/dd3tduggc/image/upload/v1778631263/favicon-fb_vq9duj.png" class="w-6 h-6"></a>
+        </div>
+    </div>
+</div>
+ 
+<!-- HERO -->
+<section id="inicio" class="hero-expanded">
+    <img src="https://res.cloudinary.com/dd3tduggc/image/upload/v1779645465/channels4_profile_upslxq.jpg" alt="Felixis Falcon" class="hero-bg-img" id="hero-img">
+    <div class="hero-overlay"></div>
+    <div class="relative z-10 text-center px-6 pt-20 w-full">
+        <div class="reveal active">
+            <p class="font-serif italic text-2xl md:text-3xl lg:text-4xl text-white mb-10 md:mb-12 max-w-2xl mx-auto leading-tight drop-shadow-lg px-4">"La música que conecta con el alma"</p>
+            <a href="https://open.spotify.com/search/felixis%20falcon" target="_blank" class="btn-pill-glow">Escuchar Música</a>
+        </div>
+    </div>
+    <div class="absolute bottom-8 md:bottom-12 left-1/2 -translate-x-1/2 animate-bounce opacity-40 z-10 text-white">
+        <i data-lucide="chevron-down" class="w-6 h-6 md:w-8 md:h-8"></i>
+    </div>
+</section>
+ 
+<!-- LANZAMIENTOS -->
+<div id="lanzamientos" class="lanzamiento-wrapper relative z-10 py-16 md:py-24 lg:py-32 px-6">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+        <div class="reveal">
+            <h2 class="text-3xl md:text-4xl font-bold mb-8 tracking-tight text-white">Nuevo Lanzamiento</h2>
+            <a class="video-card group block w-full" href="https://www.youtube.com/watch?v=mvsoSVF2hzs" target="_blank">
+                <img src="https://img.youtube.com/vi/mvsoSVF2hzs/maxresdefault.jpg" alt="Nuevo Lanzamiento" class="video-thumb object-cover w-full aspect-video">
+                <img class="youtube-button" src="https://upload.wikimedia.org/wikipedia/commons/e/ef/Youtube_logo.png" alt="YouTube">
+                <div class="absolute bottom-0 left-0 w-full p-6 md:p-8 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                    <p class="font-serif italic text-xl md:text-2xl text-white">Último Video</p>
+                    <p class="text-[8px] md:text-[10px] tracking-[0.4em] uppercase text-white/70 mt-2">Disponible en YouTube</p>
+                </div>
+            </a>
+        </div>
+        <div class="reveal">
+            <h2 class="text-3xl md:text-4xl font-bold mb-8 tracking-tight text-white">Lanzamiento Oficial</h2>
+            <a class="video-card group block w-full" href="https://www.youtube.com/watch?v=fEic6_TlpVY" target="_blank">
+                <img src="https://img.youtube.com/vi/fEic6_TlpVY/maxresdefault.jpg" alt="Lanzamiento Oficial" class="video-thumb object-cover w-full aspect-video">
+                <img class="youtube-button" src="https://upload.wikimedia.org/wikipedia/commons/e/ef/Youtube_logo.png" alt="YouTube">
+                <div class="absolute bottom-0 left-0 w-full p-6 md:p-8 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                    <p class="font-serif italic text-xl md:text-2xl text-white">Video Oficial</p>
+                    <p class="text-[8px] md:text-[10px] tracking-[0.4em] uppercase text-white/70 mt-2">Disponible en YouTube</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+ 
+ 
+<!-- BIOGRAFÍA -->
+<section id="biografia" class="relative z-10 py-16 md:py-24 lg:py-32 px-6 bg-[#07141d]">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+ 
+        <!-- Imagen -->
+        <div class="reveal relative group order-2 lg:order-1">
+            <div class="absolute -inset-2 bg-gradient-to-br from-purple-900 via-indigo-900 to-transparent rounded-3xl blur-2xl opacity-30 group-hover:opacity-50 transition duration-1000"></div>
+            <img src="https://res.cloudinary.com/dd3tduggc/image/upload/v1779645465/channels4_profile_upslxq.jpg"
+                 alt="Felixis Falcón"
+                 class="relative w-full rounded-3xl shadow-2xl border border-white/10 object-cover max-h-[600px]">
+        </div>
+ 
+        <!-- Texto -->
+        <div class="order-1 lg:order-2">
+            <div class="reveal mb-10">
+                <span class="text-[10px] md:text-xs tracking-[0.4em] uppercase text-gray-400 font-light block mb-4">Su Historia</span>
+                <h2 class="text-4xl md:text-5xl lg:text-6xl font-serif text-white mb-8 leading-tight">Conoce a<br><span class="font-script text-5xl md:text-6xl lg:text-7xl">Felixis Falcón</span></h2>
+            </div>
+ 
+            <div class="space-y-5 text-gray-400 font-light text-sm md:text-base leading-relaxed reveal">
+                <p>
+                    Felixis Falcón nació el 19 de noviembre de 1995 en Syracuse, Nueva York — siendo él mismo un milagro de vida, pues su madre había sido diagnosticada como mujer estéril. Hijo de Félix Falcón y Sonia Ortiz, creció junto a sus dos hermanas Keren y Keilyn con un propósito claro desde el primer día.
+                </p>
+                <p>
+                    Su ministerio comenzó a los 6 años, cuando sus padres lo impulsaron a participar en distintos "Talent Shows" infantiles, obteniendo alrededor de 7 premios. A los 7 años ya recibía invitaciones formales a iglesias en Puerto Rico, donde también ministraba la Palabra de Dios. A los 9 años lanzó su primer demo titulado <em>"Alaba y Vencerás"</em>.
+                </p>
+                <p>
+                    Una década después lanzó su primer álbum <em>"Socórreme"</em>, que superó el millón de visualizaciones en YouTube. Su himno <em>"Vasija Quebrantada"</em> se convirtió en una de sus canciones más reconocidas, plasmando la más honesta adoración desde un corazón quebrantado que busca a Dios.
+                </p>
+                <p>
+                    Adorador apasionado y llamado a levantar altares de adoración, su música lo ha llevado a ministrar en Honduras, Colombia, Guatemala, México, Islas Vírgenes y más. Hoy con más de 64 mil seguidores en Instagram, sigue expandiendo su ministerio alrededor del mundo.
+                </p>
+            </div>
+ 
+            <!-- Stats -->
+            <div class="grid grid-cols-3 gap-4 mt-12 reveal">
+                <div class="text-center border border-white/10 rounded-2xl p-4">
+                    <p class="text-2xl md:text-3xl font-serif text-white">+1M</p>
+                    <p class="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-gray-500 mt-1">Visualizaciones</p>
+                </div>
+                <div class="text-center border border-white/10 rounded-2xl p-4">
+                    <p class="text-2xl md:text-3xl font-serif text-white">64K</p>
+                    <p class="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-gray-500 mt-1">Seguidores</p>
+                </div>
+                <div class="text-center border border-white/10 rounded-2xl p-4">
+                    <p class="text-2xl md:text-3xl font-serif text-white">20+</p>
+                    <p class="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-gray-500 mt-1">Años ministrando</p>
+                </div>
+            </div>
+        </div>
+ 
+    </div>
+</section>
+ 
+    
+ 
+    <!-- CAMPAMENTO -->
+<section id="campamento" class="relative z-10 py-16 md:py-24 lg:py-32 px-6 bg-[#0a0a0a]">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div class="reveal relative group">
+            <div class="absolute -inset-2 bg-gradient-to-r from-orange-600 via-red-500 to-yellow-500 rounded-3xl blur-xl opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+            <img src="https://res.cloudinary.com/dd3tduggc/image/upload/v1779716437/campamento_wkv5tl.jpg" alt="Campamento" class="relative w-full rounded-3xl shadow-2xl border border-white/10 object-cover">
+        </div>
+        <div>
+            <div class="text-center lg:text-left mb-10 reveal">
+                <span class="text-[10px] md:text-xs tracking-[0.4em] uppercase text-orange-500/80 font-light block mb-4">Campamento 2026</span>
+                <h2 class="text-5xl md:text-6xl lg:text-7xl font-script text-white mb-6">El Fuego No Se Apaga</h2>
+                <p class="text-gray-400 font-light text-sm md:text-base leading-relaxed max-w-xl mx-auto lg:mx-0">Únete a nosotros en una experiencia inolvidable. Completa tus datos para asegurar tu lugar.</p>
+            </div>
+ 
+            <div class="reveal bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl overflow-hidden relative min-h-[350px]">
+ 
+                <!-- Paso 1: Datos -->
+                <form id="camp-form" class="transition-all duration-500 transform translate-x-0 opacity-100 absolute inset-0 p-6 md:p-8 flex flex-col justify-center bg-transparent">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-4">
+                        <div>
+                            <label class="block text-[10px] tracking-[0.2em] uppercase text-white/70 mb-2">Nombre Completo *</label>
+                            <input id="camp-nombre" type="text" required class="camp-input w-full rounded-xl p-3 text-sm font-light" placeholder="Tu nombre">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] tracking-[0.2em] uppercase text-white/70 mb-2">Edad *</label>
+                            <input id="camp-edad" type="number" required min="1" class="camp-input w-full rounded-xl p-3 text-sm font-light" placeholder="Tu edad">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-6">
+                        <div>
+                            <label class="block text-[10px] tracking-[0.2em] uppercase text-white/70 mb-2">Correo Electrónico *</label>
+                            <input id="camp-email" type="email" required class="camp-input w-full rounded-xl p-3 text-sm font-light" placeholder="tu@email.com">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] tracking-[0.2em] uppercase text-white/70 mb-2">Teléfono *</label>
+                            <input id="camp-telefono" type="tel" required class="camp-input w-full rounded-xl p-3 text-sm font-light" placeholder="(123) 456-7890">
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-center justify-between border-t border-white/10 pt-6 mt-2 gap-4">
+                        <div class="text-center sm:text-left">
+                            <span class="block text-[10px] tracking-[0.2em] uppercase text-white/50 mb-1">Costo de Inscripción</span>
+                            <span class="text-2xl font-serif text-white">$40.00 <span class="text-xs font-sans text-white/50 uppercase tracking-widest">USD</span></span>
+                        </div>
+                        <button type="submit" class="btn-pill-glow w-full sm:w-auto flex justify-center items-center gap-2 px-8">
+                            Continuar al Pago <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </form>
+ 
+                <!-- Paso 2: Pago -->
+                <div id="payment-section" class="absolute inset-0 bg-[#0a0a0a]/95 backdrop-blur-xl p-6 md:p-8 flex flex-col justify-center transition-all duration-500 transform translate-x-full opacity-0 pointer-events-none z-10">
+                    <button type="button" id="back-to-form" class="absolute top-4 left-4 text-white/50 hover:text-white transition flex items-center gap-2 text-xs uppercase tracking-widest">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver
+                    </button>
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-serif text-white mb-2">Resumen de Pago</h3>
+                        <p class="text-white/60 text-sm font-light">Inscripción: El Fuego No Se Apaga</p>
+                        <div class="text-4xl font-serif text-orange-400 mt-4">$40.00</div>
+                    </div>
+                    <div class="space-y-3 max-w-sm mx-auto w-full">
+                        <button type="button" id="pay-btn" data-method="Tarjeta de Crédito" class="w-full bg-white text-black rounded-xl p-3 md:p-4 flex items-center justify-center gap-3 font-medium hover:bg-gray-200 transition transform hover:scale-[1.02] shadow-lg text-sm md:text-base">
+                            <i data-lucide="credit-card" class="w-5 h-5"></i> Pagar con Tarjeta
+                        </button>
+                        <div class="relative flex py-3 items-center">
+                            <div class="flex-grow border-t border-white/10"></div>
+                            <span class="flex-shrink-0 mx-4 text-white/40 text-[10px] uppercase tracking-widest">Otras Opciones</span>
+                            <div class="flex-grow border-t border-white/10"></div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 md:gap-3">
+                            <button type="button" data-method="Zelle" class="pay-alt-btn bg-transparent border border-white/20 text-white rounded-xl py-3 px-1 flex items-center justify-center hover:bg-[#8c9eff]/10 hover:border-[#8c9eff] transition hover:scale-[1.02]">
+                                <span class="font-serif italic text-sm text-[#8c9eff]">Zelle</span>
+                            </button>
+                            <button type="button" data-method="CashApp" class="pay-alt-btn bg-transparent border border-white/20 text-white rounded-xl py-3 px-1 flex items-center justify-center hover:bg-[#00D632]/10 hover:border-[#00D632] transition hover:scale-[1.02]">
+                                <span class="font-bold text-sm text-[#00D632]">CashApp</span>
+                            </button>
+                            <button type="button" data-method="PayPal" class="pay-alt-btn bg-transparent border border-white/20 text-white rounded-xl py-3 px-1 flex items-center justify-center hover:bg-[#0079C1]/10 hover:border-[#0079C1] transition hover:scale-[1.02]">
+                                <span class="font-bold text-sm text-[#0079C1] italic">PayPal</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+ 
+                <!-- Éxito -->
+                <div id="form-success" class="absolute inset-0 bg-[#0a0a0a]/95 backdrop-blur-xl flex flex-col items-center justify-center text-center p-6 transition-all duration-500 transform scale-95 opacity-0 pointer-events-none z-20">
+                    <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-6">
+                        <i data-lucide="check" class="w-8 h-8 text-green-400"></i>
+                    </div>
+                    <h3 class="text-2xl font-serif text-white mb-2">¡Inscripción Completada!</h3>
+                    <p class="text-white/60 font-light text-sm max-w-xs">Hemos recibido tu información y te notificaremos al correo registrado.</p>
+                    <button type="button" onclick="location.reload()" class="mt-8 text-[10px] tracking-[0.2em] uppercase text-orange-400 hover:text-orange-300 transition underline underline-offset-4">
+                        Registrar a otra persona
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+ 
+<!-- INVITACIONES -->
+<section id="invitaciones" class="relative z-10 py-16 md:py-24 lg:py-32 px-6 bg-[#07141d]">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-start">
+        <div class="lg:col-span-2 text-center lg:text-left reveal lg:sticky lg:top-32">
+            <span class="text-[10px] md:text-xs tracking-[0.4em] uppercase text-gray-400 font-light block mb-4">Ministerio</span>
+            <h2 class="text-4xl md:text-5xl lg:text-6xl font-serif text-white mb-6">Formulario de Invitaciones</h2>
+            <p class="text-gray-400 font-light text-sm md:text-base leading-relaxed mb-8">Para mí es un privilegio poder adorar juntos y compartir lo que Dios nos ha entregado. Completa este formulario para coordinar fechas, detalles de tu evento y ser parte de lo que Dios está haciendo en tu congregación.</p>
+            <div class="hidden lg:flex items-center gap-4 text-white/50 text-sm font-light">
+                <i data-lucide="calendar-check" class="w-5 h-5"></i> Agenda abierta para 2026
+            </div>
+        </div>
+ 
+        <div class="lg:col-span-3 reveal bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl relative min-h-[400px] flex flex-col justify-center">
+            <form id="booking-form" class="w-full transition-opacity duration-500">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
+                    <div>
+                        <label class="block text-[10px] tracking-[0.2em] uppercase text-white/70 mb-2">Iglesia / Organización *</label>
+                        <input id="book-iglesia" type="text" required class="camp-input w-full rounded-xl p-3 md:p-4 text-sm font-light" placeholder="Nombre de la iglesia">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] tracking-[0.2em] uppercase text-white/70 mb-2">Persona de Contacto *</label>
+                        <input id="book-contacto" type="text" required class="camp-input w-full rounded-xl p-3 md:p-4 text-sm font-light" placeholder="Pastor o líder a cargo">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
+                    <div>
+                        <label class="block text-[10px] tracking-[0.2em] uppercase text-white/70 mb-2">Correo Electrónico *</label>
+                        <input id="book-email" type="email" required class="camp-input w-full rounded-xl p-3 md:p-4 text-sm font-light" placeholder="contacto@email.com">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] tracking-[0.2em] uppercase text-white/70 mb-2">Teléfono *</label>
+                        <input id="book-telefono" type="tel" required class="camp-input w-full rounded-xl p-3 md:p-4 text-sm font-light" placeholder="(+1) 234-567-8900">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
+                    <div>
+                        <label class="block text-[10px] tracking-[0.2em] uppercase text-white/70 mb-2">Fecha del Evento *</label>
+                        <input id="book-fecha" type="date" required class="camp-input w-full rounded-xl p-3 md:p-4 text-sm font-light text-white/70">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] tracking-[0.2em] uppercase text-white/70 mb-2">Tipo de Evento *</label>
+                        <select id="book-tipo" required class="camp-input w-full rounded-xl p-3 md:p-4 text-sm font-light appearance-none text-white/70">
+                            <option value="" disabled selected>Selecciona una opción</option>
+                            <option value="Servicio Dominical">Servicio Dominical / Regular</option>
+                            <option value="Congreso / Conferencia">Congreso / Conferencia</option>
+                            <option value="Concierto de Adoración">Concierto de Adoración</option>
+                            <option value="Vigilia / Retiro">Vigilia / Retiro</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-4 md:mb-6">
+                    <label class="block text-[10px] tracking-[0.2em] uppercase text-white/70 mb-2">Ubicación (Ciudad, País) *</label>
+                    <input id="book-ubicacion" type="text" required class="camp-input w-full rounded-xl p-3 md:p-4 text-sm font-light" placeholder="Ej. Orlando, FL, USA">
+                </div>
+                <div class="mb-8">
+                    <label class="block text-[10px] tracking-[0.2em] uppercase text-white/70 mb-2">Detalles Adicionales</label>
+                    <textarea id="book-detalles" rows="3" class="camp-input w-full rounded-xl p-3 md:p-4 text-sm font-light resize-none" placeholder="Cuéntanos un poco más sobre la visión del evento..."></textarea>
+                </div>
+                <div class="text-right">
+                    <button type="submit" id="booking-btn" class="btn-pill-glow w-full md:w-auto px-10">Enviar Solicitud</button>
+                </div>
+            </form>
+ 
+            <div id="booking-success" class="absolute inset-0 bg-[#07141d]/90 backdrop-blur-sm rounded-3xl flex-col items-center justify-center text-center p-8 hidden opacity-0 transition-opacity duration-500">
+                <div class="w-16 h-16 bg-[#8c9eff]/20 rounded-full flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(140,158,255,0.3)]">
+                    <i data-lucide="send" class="w-8 h-8 text-[#8c9eff]"></i>
+                </div>
+                <h3 class="text-3xl font-serif text-white mb-4">¡Solicitud Enviada!</h3>
+                <p class="text-white/60 font-light text-base max-w-sm mx-auto">Gracias por tu invitación. Nuestro equipo se pondrá en contacto contigo pronto. ¡Bendiciones!</p>
+                <button type="button" onclick="document.getElementById('booking-success').classList.add('hidden','opacity-0'); document.getElementById('booking-form').reset(); document.getElementById('booking-form').style.opacity='1';" class="mt-8 text-[10px] tracking-[0.2em] uppercase text-gray-400 hover:text-white transition">
+                    Enviar nueva solicitud
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+ 
+<!-- FOOTER -->
+<footer id="contacto" class="py-16 md:py-24 lg:py-32 px-6 bg-neutral-900 text-white relative z-10 overflow-hidden">
+    <div class="max-w-7xl mx-auto text-center">
+        <span class="text-[10px] tracking-[0.5em] uppercase text-neutral-500 block mb-10 reveal">Escucha & Conecta</span>
+        <h2 class="text-5xl md:text-7xl lg:text-9xl font-script mb-16 reveal">Felixis Falcon</h2>
+        <div class="flex flex-wrap justify-center items-center gap-8 md:gap-14 mb-16 reveal">
+            <a href="https://www.instagram.com/felixis_falcon/?hl=en" target="_blank" class="group flex flex-col items-center gap-3">
+                <div class="w-11 h-11 md:w-14 md:h-14 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white transition-all overflow-hidden">
+                    <img src="https://res.cloudinary.com/dd3tduggc/image/upload/v1778631268/favicon-ins_lw1cbh.png" alt="Instagram" class="w-5 h-5 md:w-8 md:h-8">
+                </div>
+                <span class="text-[7px] md:text-[8px] tracking-[0.4em] uppercase opacity-40 group-hover:opacity-100 transition">Instagram</span>
+            </a>
+            <a href="https://www.youtube.com/@felixisfalcon" target="_blank" class="group flex flex-col items-center gap-3">
+                <div class="w-11 h-11 md:w-14 md:h-14 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white transition-all overflow-hidden">
+                    <img src="https://res.cloudinary.com/dd3tduggc/image/upload/v1778629614/favicon-yt_wudooa.png" alt="YouTube" class="w-5 h-5 md:w-8 md:h-8">
+                </div>
+                <span class="text-[7px] md:text-[8px] tracking-[0.4em] uppercase opacity-40 group-hover:opacity-100 transition">YouTube</span>
+            </a>
+            <a href="https://open.spotify.com/search/felixis%20falcon" target="_blank" class="group flex flex-col items-center gap-3">
+                <div class="w-12 h-12 md:w-16 md:h-16 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white transition-all overflow-hidden">
+                    <img src="https://res.cloudinary.com/dd3tduggc/image/upload/v1778629479/favicon-tbn_xffcor.png" alt="Spotify" class="w-6 h-6 md:w-10 md:h-10">
+                </div>
+                <span class="text-[7px] md:text-[8px] tracking-[0.4em] uppercase opacity-40 group-hover:opacity-100 transition">Spotify</span>
+            </a>
+            <a href="https://www.facebook.com/felixis7/" target="_blank" class="group flex flex-col items-center gap-3">
+                <div class="w-11 h-11 md:w-14 md:h-14 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white transition-all overflow-hidden">
+                    <img src="https://res.cloudinary.com/dd3tduggc/image/upload/v1778631263/favicon-fb_vq9duj.png" alt="Facebook" class="w-5 h-5 md:w-8 md:h-8">
+                </div>
+                <span class="text-[7px] md:text-[8px] tracking-[0.4em] uppercase opacity-40 group-hover:opacity-100 transition">Facebook</span>
+            </a>
+        </div>
+        <div class="border-t border-white/10 pt-12 text-[10px] md:text-xs tracking-[0.3em] uppercase text-neutral-400 mb-12 flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 reveal">
+            <a href="tel:2535441631" class="hover:text-white transition flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4"></i> (253) 544-1631</a>
+            <span class="hidden md:inline text-neutral-700">|</span>
+            <a href="mailto:felixisfalcon@gmail.com" class="hover:text-white transition flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4"></i> felixisfalcon@gmail.com</a>
+        </div>
+        <p class="text-[8px] md:text-[10px] tracking-[0.4em] uppercase text-neutral-600">&copy; 2026 Felixis Falcon - Creado con propósito.</p>
+        <p class="text-[7px] md:text-[8px] tracking-[0.5em] uppercase text-neutral-700 mt-4 font-light">Elevate Design Co</p>
+    </div>
+</footer>
+ 
+<script>
+    // ============================================================
+    //  ✅ GOOGLE APPS SCRIPT — CONFIGURACIÓN
+    //  Pega aquí la URL que te da Google al publicar el script
+    // ============================================================
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxRqlxaneUYzg-MIokMOnCmk2dPr2vd4KUDS4N_4hEAooPkJcK07VpBvQsnwZtMSFLx/exec";
+    // ============================================================
+ 
+    lucide.createIcons();
+ 
+    // Toast
+    function showToast(msg, type = 'error') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = `show ${type}`;
+        setTimeout(() => t.className = '', 4000);
+    }
+ 
+    function setLoading(btn, loading) {
+        if (loading) {
+            btn._orig = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto"></i>';
+            btn.disabled = true;
+            lucide.createIcons();
+        } else {
+            btn.innerHTML = btn._orig || btn.innerHTML;
+            btn.disabled = false;
+        }
+    }
+ 
+    // Función central para enviar datos al script de Google
+    async function sendToGmail(payload) {
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',         // necesario para Google Apps Script
+            body: JSON.stringify(payload),
+        });
+        // con no-cors no podemos leer la respuesta, pero el email se envía igual
+    }
+ 
+    // Intro
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const o = document.getElementById('intro-overlay');
+            if (o) { o.classList.add('fade-out'); setTimeout(() => o.style.display='none', 1000); }
+        }, 2500);
+    });
+ 
+    // Navbar
+    window.addEventListener('scroll', () => {
+        document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 80);
+    });
+ 
+    // Menú móvil
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (mobileMenuBtn && mobileMenu) {
+        const toggle = () => {
+            mobileMenu.classList.toggle('active');
+            mobileMenu.classList.toggle('invisible');
+            const icon = mobileMenu.classList.contains('active') ? 'x' : 'menu';
+            mobileMenuBtn.innerHTML = `<i data-lucide="${icon}" class="w-6 h-6 md:w-8 md:h-8"></i>`;
+            lucide.createIcons();
+        };
+        mobileMenuBtn.addEventListener('click', toggle);
+        document.querySelectorAll('.mobile-link').forEach(l => l.addEventListener('click', toggle));
+    }
+ 
+    // Reveal
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealOnScroll = () => revealEls.forEach(el => {
+        if (el.getBoundingClientRect().top < window.innerHeight * 0.9) el.classList.add('active');
+    });
+    window.addEventListener('scroll', revealOnScroll);
+    revealOnScroll();
+ 
+    // Parallax
+    const heroImg = document.getElementById('hero-img');
+    if (window.matchMedia("(min-width: 1024px)").matches) {
+        document.addEventListener('mousemove', e => {
+            if (window.scrollY < window.innerHeight && heroImg) {
+                heroImg.style.transform = `scale(1.05) translate(${(window.innerWidth/2 - e.pageX)/100}px, ${(window.innerHeight/2 - e.pageY)/100}px)`;
+            }
+        });
+    }
+ 
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const t = document.querySelector(a.getAttribute('href'));
+            if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+        });
+    });
+ 
+    // ── CAMPAMENTO ──────────────────────────────────────────────
+    const campForm       = document.getElementById('camp-form');
+    const paymentSection = document.getElementById('payment-section');
+    const formSuccess    = document.getElementById('form-success');
+    const backToFormBtn  = document.getElementById('back-to-form');
+    let campData = {};
+ 
+    if (campForm) {
+        campForm.addEventListener('submit', e => {
+            e.preventDefault();
+            campData = {
+                nombre:   document.getElementById('camp-nombre').value,
+                edad:     document.getElementById('camp-edad').value,
+                email:    document.getElementById('camp-email').value,
+                telefono: document.getElementById('camp-telefono').value,
+            };
+            campForm.classList.add('-translate-x-full', 'opacity-0');
+            campForm.style.pointerEvents = 'none';
+            paymentSection.classList.remove('translate-x-full', 'opacity-0', 'pointer-events-none');
+            paymentSection.classList.add('translate-x-0', 'opacity-100');
+        });
+ 
+        backToFormBtn.addEventListener('click', () => {
+            paymentSection.classList.remove('translate-x-0', 'opacity-100');
+            paymentSection.classList.add('translate-x-full', 'opacity-0', 'pointer-events-none');
+            campForm.classList.remove('-translate-x-full', 'opacity-0');
+            campForm.style.pointerEvents = 'auto';
+        });
+ 
+        const processPayment = async (btn) => {
+            const method = btn.dataset.method || 'Tarjeta';
+            setLoading(btn, true);
+            try {
+                await sendToGmail({
+                    subject: `🔥 Nueva inscripción — El Fuego No Se Apaga`,
+                    body:
+`Nueva inscripción al Campamento 2026
+ 
+Nombre:          ${campData.nombre}
+Edad:            ${campData.edad}
+Email:           ${campData.email}
+Teléfono:        ${campData.telefono}
+Método de pago:  ${method}
+Monto:           $40.00 USD`
+                });
+                paymentSection.classList.remove('translate-x-0', 'opacity-100');
+                paymentSection.classList.add('opacity-0', 'pointer-events-none');
+                formSuccess.classList.remove('scale-95', 'opacity-0', 'pointer-events-none');
+                formSuccess.classList.add('scale-100', 'opacity-100');
+            } catch (err) {
+                showToast('⚠ Error al enviar. Verifica la URL del script.', 'error');
+                setLoading(btn, false);
+            }
+        };
+ 
+        document.getElementById('pay-btn').addEventListener('click', e => processPayment(e.currentTarget));
+        document.querySelectorAll('.pay-alt-btn').forEach(btn => btn.addEventListener('click', () => processPayment(btn)));
+    }
+ 
+    // ── INVITACIONES ────────────────────────────────────────────
+    const bookingForm    = document.getElementById('booking-form');
+    const bookingBtn     = document.getElementById('booking-btn');
+    const bookingSuccess = document.getElementById('booking-success');
+ 
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', async e => {
+            e.preventDefault();
+            setLoading(bookingBtn, true);
+            try {
+                await sendToGmail({
+                    subject: `📅 Nueva solicitud de invitación — ${document.getElementById('book-iglesia').value}`,
+                    body:
+`Nueva solicitud de invitación
+ 
+Iglesia:     ${document.getElementById('book-iglesia').value}
+Contacto:    ${document.getElementById('book-contacto').value}
+Email:       ${document.getElementById('book-email').value}
+Teléfono:    ${document.getElementById('book-telefono').value}
+Fecha:       ${document.getElementById('book-fecha').value}
+Tipo:        ${document.getElementById('book-tipo').value}
+Ubicación:   ${document.getElementById('book-ubicacion').value}
+Detalles:    ${document.getElementById('book-detalles').value || '—'}`
+                });
+                bookingForm.style.opacity = '0';
+                setTimeout(() => {
+                    bookingSuccess.classList.remove('hidden');
+                    setTimeout(() => bookingSuccess.classList.add('opacity-100'), 50);
+                }, 400);
+            } catch (err) {
+                showToast('⚠ Error al enviar. Verifica la URL del script.', 'error');
+            } finally {
+                setLoading(bookingBtn, false);
+            }
+        });
+    }
+</script>
+</body>
+</html>
+ 
